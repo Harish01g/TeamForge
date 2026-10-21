@@ -1,0 +1,8 @@
+node_modules/
+dist/
+backend/.env
+backend/.npm-cache/
+.DS_Store
+.env
+.env.*
+!.env.example
