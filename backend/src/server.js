@@ -2,6 +2,8 @@ import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import opportunityRoutes from './routes/opportunities.js'
 import authRoutes from './routes/auth.js'
 import studentRoutes from './routes/students.js'
@@ -13,6 +15,8 @@ import teamRoutes from './routes/teams.js'
 
 const app = express()
 const port = process.env.PORT || 4000
+const currentDir = path.dirname(fileURLToPath(import.meta.url))
+const frontendDist = path.resolve(currentDir, '../../frontend/dist')
 
 app.use(cors())
 app.use(express.json({ limit: '1mb' }))
@@ -25,6 +29,13 @@ app.use('/api/notifications', notificationRoutes)
 app.use('/api/saved', savedRoutes)
 app.use('/api/teams', teamRoutes)
 app.use('/api/opportunities', opportunityRoutes)
+
+app.use(express.static(frontendDist))
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next()
+  res.sendFile(path.join(frontendDist, 'index.html'))
+})
+
 app.use((error, _req, res, _next) => {
   console.error(error)
   res.status(500).json({ error: 'Something went wrong on the server.' })
